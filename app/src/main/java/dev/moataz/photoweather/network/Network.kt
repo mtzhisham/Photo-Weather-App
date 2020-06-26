@@ -1,5 +1,6 @@
 package dev.moataz.photoweather.network
 
+import dev.moataz.photoweather.BuildConfig
 import dev.moataz.photoweather.helper.Constant
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
@@ -39,7 +40,7 @@ object Network {
     object ApiInterceptor : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
 
-            val appid = "c18cf048db4e550019294fe58adb0db2"
+            val appid = BuildConfig.APP_ID
 
             var request = chain.request()
             val url: HttpUrl = request.url.newBuilder()
