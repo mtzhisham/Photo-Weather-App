@@ -15,6 +15,7 @@ import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -77,7 +78,7 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
         }
 
         // Setup the listener for take photo button
-        camera_capture_button.setOnClickListener { savePictureToMemory() }
+        camera_capture_button.setOnClickListener { takePhoto() }
 
         outputDirectory = getOutputDirectory()
 
@@ -147,41 +148,47 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
                     val msg = "Photo capture succeeded: $savedUri"
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     Log.d(TAG, msg)
+
+                    val bundle = Bundle()
+                    bundle.putString("iamge", photoFile.path)
+                    findNavController().navigate(R.id.action_cameraFragment_to_previewFragment, bundle)
                 }
             })
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
-    private fun savePictureToMemory() {
-
-
-        val imageCapture = imageCapture ?: return
-        imageCapture?.takePicture(ContextCompat.getMainExecutor(requireContext()), object : ImageCapture.OnImageCapturedCallback(){
-
-
-            override fun onCaptureSuccess(image: ImageProxy) {
-
-                image.image?.let {
-
-                    Glide
-                        .with(requireContext())
-                        .load(it.toBitmap())
-                        .apply(RequestOptions().override(getScreenSize(requireContext())?.x?:100, getScreenSize(requireContext())?.y?:100))
-                        .into(capteredImage)
-
-                }
-
-
-
-                super.onCaptureSuccess(image)
-
-            }
-
-            override fun onError(exception: ImageCaptureException) {
-                super.onError(exception)
-            }
-        })
-    }
+//    @SuppressLint("UnsafeExperimentalUsageError")
+//    private fun savePictureToMemory() {
+//
+//
+//        val imageCapture = imageCapture ?: return
+//        imageCapture?.takePicture(ContextCompat.getMainExecutor(requireContext()), object : ImageCapture.OnImageCapturedCallback(){
+//
+//
+//            override fun onCaptureSuccess(image: ImageProxy) {
+//
+//                image.image?.let {
+//
+//                    val bundle = Bundle()
+//
+//                    bundle.putParcelable("iamge", it.toBitmap())
+//
+//                    findNavController().navigate(R.id.action_cameraFragment_to_previewFragment, bundle)
+//
+//
+//
+//                }
+//
+//
+//
+//                super.onCaptureSuccess(image)
+//
+//            }
+//
+//            override fun onError(exception: ImageCaptureException) {
+//                super.onError(exception)
+//            }
+//        })
+//    }
 
     private fun allPermissionsGranted() = EasyPermissions.hasPermissions(requireContext(), *REQUIRED_PERMISSIONS)
 
@@ -203,53 +210,6 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
     }
 
 
-    fun decodeSampledBitmapFromResource(
-        image: Image,
-        reqWidth: Int,
-        reqHeight: Int
-    ): Bitmap {
-        // First decode with inJustDecodeBounds=true to check dimensions
-        return BitmapFactory.Options().run {
-            inJustDecodeBounds = true
-
-            // Calculate inSampleSize
-            inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
-
-            val buffer: ByteBuffer = image.planes[0].buffer
-            val bytes = ByteArray(buffer.remaining())
-            buffer.get(bytes)
-
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, this)
-
-
-
-
-            // Decode bitmap with inSampleSize set
-            inJustDecodeBounds = false
-
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, this)
-        }
-    }
-
-    fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        // Raw height and width of image
-        val (height: Int, width: Int) = options.run { outHeight to outWidth }
-        var inSampleSize = 1
-
-        if (height > reqHeight || width > reqWidth) {
-
-            val halfHeight: Int = height / 2
-            val halfWidth: Int = width / 2
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-
-        return inSampleSize
-    }
 
 }
 
