@@ -13,3 +13,7 @@ fun getOutputDirectory(fragmentActivity: FragmentActivity, resources: Resources)
     return if (mediaDir != null && mediaDir.exists())
         mediaDir else File("")
 }
+
+fun listFiles(fragmentActivity: FragmentActivity, resources: Resources) : ArrayList<File>{
+  return getOutputDirectory(fragmentActivity, resources).listFiles()?.toCollection(ArrayList<File>())?:arrayListOf()
+}
