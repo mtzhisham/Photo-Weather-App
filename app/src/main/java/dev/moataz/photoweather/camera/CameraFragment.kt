@@ -20,6 +20,7 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import dev.moataz.photoweather.R
+import dev.moataz.photoweather.helper.getOutputDirectory
 import dev.moataz.photoweather.helper.getScreenSize
 import kotlinx.android.synthetic.main.camera_fragment.*
 import pub.devrel.easypermissions.AfterPermissionGranted
@@ -80,7 +81,7 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
         // Setup the listener for take photo button
         camera_capture_button.setOnClickListener { takePhoto() }
 
-        outputDirectory = getOutputDirectory()
+        outputDirectory = getOutputDirectory(requireActivity(), resources)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
@@ -192,13 +193,6 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
 
     private fun allPermissionsGranted() = EasyPermissions.hasPermissions(requireContext(), *REQUIRED_PERMISSIONS)
 
-    fun getOutputDirectory(): File {
-
-        val mediaDir = requireActivity().externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else File("")
-    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

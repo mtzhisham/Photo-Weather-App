@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import dev.moataz.photoweather.R
+import dev.moataz.photoweather.helper.getOutputDirectory
 import dev.moataz.photoweather.helper.getScreenSize
 import kotlinx.android.synthetic.main.preview_fragment.*
 import pub.devrel.easypermissions.AfterPermissionGranted
@@ -117,22 +118,13 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
 
 
-    fun getOutputDirectory(): File {
-
-        val mediaDir = requireActivity().externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() } }
-        return if (mediaDir != null && mediaDir.exists())
-            mediaDir else File("")
-    }
-
-
     @AfterPermissionGranted(REQUEST_CODE_PERMISSIONS)
     private fun saveToDisk() {
         createdBitmap?.let {
 
 
             val imageFile =  File(
-                getOutputDirectory(),
+                getOutputDirectory(requireActivity(), resources),
                 SimpleDateFormat(
                     FILENAME_FORMAT, Locale.US
                 ).format(System.currentTimeMillis()) + ".jpg")
