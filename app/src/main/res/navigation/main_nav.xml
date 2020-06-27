@@ -4,14 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_nav"
     app:startDestination="@id/cameraFragment">
-    <fragment
-        android:id="@+id/tempFragment"
-        android:name="dev.moataz.photoweather.temp.TempFragment"
-        android:label="fragment_temp"
-        tools:layout="@layout/fragment_temp" />
+
     <fragment
         android:id="@+id/cameraFragment"
-        android:name="dev.moataz.photoweather.camera.CameraFragment"
+        android:name="dev.moataz.photoweather.ui.camera.CameraFragment"
         android:label="camera_fragment"
         tools:layout="@layout/camera_fragment" >
         <action
@@ -23,7 +19,7 @@
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
-        android:name="dev.moataz.photoweather.camera.PreviewFragment"
+        android:name="dev.moataz.photoweather.ui.preview.PreviewFragment"
         android:label="preview_fragment"
         tools:layout="@layout/preview_fragment" >
         <action
@@ -32,7 +28,7 @@
     </fragment>
     <fragment
         android:id="@+id/photoGalleryFragment"
-        android:name="dev.moataz.photoweather.camera.PhotoGalleryFragment"
+        android:name="dev.moataz.photoweather.ui.photogallery.PhotoGalleryFragment"
         android:label="photo_gallery_fragment"
         tools:layout="@layout/photo_gallery_fragment" >
         <action
