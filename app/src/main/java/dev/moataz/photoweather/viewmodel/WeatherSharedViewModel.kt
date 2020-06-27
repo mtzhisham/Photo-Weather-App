@@ -1,4 +1,4 @@
-package dev.moataz.photoweather
+package dev.moataz.photoweather.viewmodel
 
 import android.location.Location
 import androidx.lifecycle.LiveData
@@ -15,34 +15,33 @@ import kotlinx.coroutines.withContext
 class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel() {
 
 
-    var error  = MutableLiveData<String>()
+    var error = MutableLiveData<String>()
     var mutableWeatherApiResponse = MutableLiveData<OpenWeatherApiResponse>()
-
-
-
     var mutableCurrentLocation = MutableLiveData<Location>()
 
 
-    fun getCurrentWeather(lat : Float,
-                          lon : Float) : LiveData<OpenWeatherApiResponse> {
+    fun getCurrentWeather(
+        lat: Float,
+        lon: Float
+    ): LiveData<OpenWeatherApiResponse> {
 
         if (mutableWeatherApiResponse.value == null)
-        viewModelScope.launch {
-            when(val result = withContext(Dispatchers.IO) {iWeatherRepo.getCurrentWeather(lat, lon)}){
+            viewModelScope.launch {
+                when (val result =
+                    withContext(Dispatchers.IO) { iWeatherRepo.getCurrentWeather(lat, lon) }) {
 
-                is DataResult.Success -> {
-                    mutableWeatherApiResponse.value = result.content
-                    error.value =null
-                }
-                is DataResult.Error -> {
-                    mutableWeatherApiResponse.value = null
-                    error.value = result.exception.message
+                    is DataResult.Success -> {
+                        mutableWeatherApiResponse.value = result.content
+                        error.value = null
+                    }
+                    is DataResult.Error -> {
+                        mutableWeatherApiResponse.value = null
+                        error.value = result.exception.message
+                    }
                 }
             }
-        }
         return mutableWeatherApiResponse
     }
-
 
 
 }

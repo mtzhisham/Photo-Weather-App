@@ -8,9 +8,10 @@ import retrofit2.http.Query
 interface ApiService {
 
     @GET("weather")
-    suspend fun getCurrentWeather(@Query("lat") lat : Float,
-
-                                  @Query("lon") lon : Float): OpenWeatherApiResponse
+    suspend fun getCurrentWeather(
+        @Query("lat") lat: Float,
+        @Query("lon") lon: Float
+    ): OpenWeatherApiResponse
 
 }
 
