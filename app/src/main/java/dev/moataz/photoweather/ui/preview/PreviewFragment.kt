@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toBitmap
@@ -30,6 +31,8 @@ import java.io.FileOutputStream
 import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.lifecycle.Observer
+
 
 
 class PreviewFragment : Fragment(R.layout.preview_fragment) {
@@ -160,28 +163,63 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
 
 
-        viewModel.mutableWeatherApiResponse.observe(
-            viewLifecycleOwner,
-            androidx.lifecycle.Observer {
+        viewModel.mutableCurrentLocation.observe(viewLifecycleOwner, Observer {
 
+            viewModel.error.observe(viewLifecycleOwner, Observer {
                 it?.let {
 
+                    Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
 
-                    Glide.with(iconIV)
-                        .load(getWeatherIconUrl(it.weather.first().icon))
-                        .fitCenter()
-                        .into(iconIV)
-
-                    placeTv.text = it.name
-                    discTV.text = it.weather.first().description
-                    tempTv.text = it.main.temp.toString()
-
+                    viewModel.error.value = null
                 }
+
 
             })
 
 
 
+            if (isNetworkAvailable(requireContext())) {
+
+                if (it != null) {
+                    viewModel.getCurrentWeather(
+                        it.latitude.toFloat(),
+                        it.longitude.toFloat()
+                    ).observe(viewLifecycleOwner, Observer {
+
+
+                        Glide.with(iconIV)
+                            .load(getWeatherIconUrl(it.weather.first().icon))
+                            .fitCenter()
+                            .into(iconIV)
+
+                        placeTv.text = it.name
+                        discTV.text = it.weather.first().description
+                        tempTv.text = it.main.temp.toString()
+
+
+
+                    })
+                } else{
+                    val krate = CustomKrate(requireContext())
+
+                    viewModel.getCurrentWeather(
+                        krate.lat,
+                        krate.lon
+                    ).observe(viewLifecycleOwner, Observer {
+
+                    })
+
+                }
+
+            } else {
+
+                Toast.makeText(requireContext(), "No Internet Connection!", Toast.LENGTH_SHORT).show()
+
+            }
+
+
+
+        })
 
 
     }

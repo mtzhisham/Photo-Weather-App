@@ -25,7 +25,6 @@ class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel
         lon: Float
     ): LiveData<OpenWeatherApiResponse> {
 
-        if (mutableWeatherApiResponse.value == null)
             viewModelScope.launch {
                 when (val result =
                     withContext(Dispatchers.IO) { iWeatherRepo.getCurrentWeather(lat, lon) }) {

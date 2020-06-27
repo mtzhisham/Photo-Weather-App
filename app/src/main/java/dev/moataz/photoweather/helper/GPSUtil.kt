@@ -56,18 +56,14 @@ class GPSUtil {
     }
 
     fun turnGPSOn() {
-        if (locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-            locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
-            locationManager!!.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)
+        if (!locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            !locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
+            !locationManager!!.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)
         ) {
-
-            onGpsListener?.gpsStatus(true)
-
-        } else {
             mSettingsClient?.checkLocationSettings(mLocationSettingsRequest)?.addOnSuccessListener(
                 (context as Activity?)!!
-            ) { //  GPS is already enable, callback GPS status through listener
-                onGpsListener?.gpsStatus(true)
+            ) { //  GPS is already enabled, do nothing
+//                onGpsListener?.gpsStatus(true)
             }
                 ?.addOnFailureListener(
                     (context as Activity?)!!
@@ -121,6 +117,7 @@ class GPSUtil {
             override fun onLocationAvailability(var1: LocationAvailability?) {
                 Log.i("detectGPS", "GPS enabled: ${var1?.isLocationAvailable}")
                 onGPSChanged(var1?.isLocationAvailable ?: false)
+                onGpsListener?.gpsStatus(var1?.isLocationAvailable ?: false)
             }
 
             override fun onLocationResult(result: LocationResult?) {
