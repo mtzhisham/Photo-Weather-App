@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import dev.moataz.photoweather.R
 import dev.moataz.photoweather.helper.Constant
+import dev.moataz.photoweather.helper.Constant.IMAGE_BUNDLE_KEY
 import dev.moataz.photoweather.helper.getOutputDirectory
 import kotlinx.android.synthetic.main.camera_fragment.*
 import pub.devrel.easypermissions.AfterPermissionGranted
@@ -128,7 +129,7 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
                     Log.d(Constant.TAG, msg)
 
                     val bundle = Bundle()
-                    bundle.putString("iamge", photoFile.path)
+                    bundle.putString(IMAGE_BUNDLE_KEY, photoFile.path)
                     findNavController().navigate(
                         R.id.action_cameraFragment_to_previewFragment,
                         bundle

@@ -15,7 +15,7 @@ import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
 
 class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
-    IOnItemSelectedListener {
+    IOnItemSelectedListener, EasyPermissions.PermissionCallbacks, EasyPermissions.RationaleCallbacks {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +45,6 @@ class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
         }
     }
 
-    @AfterPermissionGranted(Constant.STORAGE_REQUEST_CODE_PERMISSIONS)
     fun initGalleryRecycler() {
         val adapter = PhotoAdapter(this)
         adapter.submitList(listFiles(requireActivity(), resources))
@@ -72,6 +71,22 @@ class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
     private fun allPermissionsGranted() =
         EasyPermissions.hasPermissions(requireContext(), *Constant.STORAGE_REQUIRED_PERMISSIONS)
 
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        when(requestCode){
+
+            Constant.STORAGE_REQUEST_CODE_PERMISSIONS -> emptyGalleryTv.visibility = View.VISIBLE
+
+        }
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        when(requestCode){
+
+            Constant.STORAGE_REQUEST_CODE_PERMISSIONS ->  initGalleryRecycler()
+
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -81,16 +96,17 @@ class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
-
-    fun onPermissionsDenied(
-        requestCode: Int,
-        list: List<String?>?
-    ) {
+    override fun onRationaleDenied(requestCode: Int) {
         when(requestCode){
 
-            Constant.STORAGE_REQUEST_CODE_PERMISSIONS -> emptyGalleryTv.visibility = View.VISIBLE
+            Constant.STORAGE_REQUEST_CODE_PERMISSIONS ->  emptyGalleryTv.visibility = View.VISIBLE
 
         }
     }
+
+    override fun onRationaleAccepted(requestCode: Int) {
+
+    }
+
 
 }
