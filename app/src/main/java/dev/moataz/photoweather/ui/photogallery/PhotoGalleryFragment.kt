@@ -52,7 +52,14 @@ class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
         galleryRv.setHasFixedSize(true)
         galleryRv.adapter = adapter
 
+        if(adapter.currentList.size ==0) {
+            emptyGalleryTv.visibility = View.VISIBLE
+
+        }
+
     }
+
+
 
     override fun onItemSelected(file: File) {
         val bundle = Bundle()
@@ -74,5 +81,16 @@ class PhotoGalleryFragment : Fragment(R.layout.photo_gallery_fragment),
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+
+    fun onPermissionsDenied(
+        requestCode: Int,
+        list: List<String?>?
+    ) {
+        when(requestCode){
+
+            Constant.STORAGE_REQUEST_CODE_PERMISSIONS -> emptyGalleryTv.visibility = View.VISIBLE
+
+        }
+    }
 
 }
