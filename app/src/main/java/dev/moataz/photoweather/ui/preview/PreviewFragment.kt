@@ -240,10 +240,7 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
     private fun saveToDisk() {
         createdBitmap?.let {
             var imageFile: File
-            if (isGalleryPreview && file != null) {
-
-            } else {
-
+            if (!isGalleryPreview && file != null) {
                 imageFile = File(
                     getOutputDirectory(requireActivity(), resources),
                     SimpleDateFormat(
@@ -257,6 +254,7 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
                     os.flush()
                     os.close()
 
+                    file = imageFile
                 } catch (e: Exception) {
                     Log.e("test", "Error writing bitmap", e)
                 }
