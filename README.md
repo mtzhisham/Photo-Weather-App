@@ -6,5 +6,5 @@
 * Using OpenWeatherMap API as a demostratatio
 * Using MVVM architecture
 * Using GMS `FusedLocationProviderClient`
-* Using `Koin` for a DI
+* Using `Koin` for DI
 
