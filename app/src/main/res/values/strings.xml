@@ -1,5 +1,10 @@
 <resources>
     <string name="app_name">PhotoWeather</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="camera_request_rational">Requesting Camera permission</string>
+    <string name="storage_request_rational">"Requesting Read/Write permission" </string>
+    <string name="location_request_rational">"Requesting Location permission" </string>
+    <string name="empty_gallery">Nothing to show here!</string>
+
 </resources>
