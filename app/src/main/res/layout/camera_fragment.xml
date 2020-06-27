@@ -4,11 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".camera.CameraFragment"
+    tools:context=".ui.camera.CameraFragment"
     >
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/camera_capture_button"
+        android:id="@+id/cameraCaptureFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="50dp"

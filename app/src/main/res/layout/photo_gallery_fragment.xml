@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".camera.PhotoGalleryFragment">
+    tools:context=".ui.photogallery.PhotoGalleryFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

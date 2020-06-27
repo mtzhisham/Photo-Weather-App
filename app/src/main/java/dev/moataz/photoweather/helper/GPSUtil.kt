@@ -7,16 +7,19 @@ import android.content.Context
 import android.content.IntentSender.SendIntentException
 import android.location.Location
 import android.location.LocationManager
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationServices.getFusedLocationProviderClient
 
+/*
+* A Helper Class for all Location logic
+* More improvements required
+*
+* */
 
-class GpsUtils {
+class GPSUtil {
 
     private var context: Context
     private var onGpsListener: OnGpsListener
@@ -24,8 +27,13 @@ class GpsUtils {
     private var mLocationSettingsRequest: LocationSettingsRequest
     private var locationManager: LocationManager
     private var locationRequest: LocationRequest
-    private var  fusedLocationProviderClient: FusedLocationProviderClient
-    constructor(context: Context, onGpsListener: OnGpsListener, fusedLocationProviderClient: FusedLocationProviderClient) {
+    private var fusedLocationProviderClient: FusedLocationProviderClient
+
+    constructor(
+        context: Context,
+        onGpsListener: OnGpsListener,
+        fusedLocationProviderClient: FusedLocationProviderClient
+    ) {
         this.context = context
         this.onGpsListener = onGpsListener
         this.fusedLocationProviderClient = fusedLocationProviderClient
@@ -41,45 +49,26 @@ class GpsUtils {
         val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
         mLocationSettingsRequest = builder.build()
-        //**************************
         builder.setAlwaysShow(true) //this is the key ingredient
-        //**************************
-
-        Log.d("GpsUtils0", "GpsUtils")
 
         turnGPSOn()
-        detectGPS {  }
+        detectGPS { }
     }
 
-
-    fun onLocationChanged(location: Location) {
-        // New location has now been determined
-        val msg = "Updated Location: " +
-                java.lang.Double.toString(location.latitude) + "," +
-                java.lang.Double.toString(location.longitude)
-//        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
-//        // You can now create a LatLng Object for use with maps
-//        val latLng = LatLng(location.latitude, location.longitude)
-        Log.d("onLocationChanged",msg )
-
-    }
-
-    // method for turn on GPS
     fun turnGPSOn() {
         if (locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
             locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER) ||
             locationManager!!.isProviderEnabled(LocationManager.PASSIVE_PROVIDER)
-                ) {
+        ) {
 
-            Log.d("Locationn", "16")
-                onGpsListener?.gpsStatus(true)
+            onGpsListener?.gpsStatus(true)
 
         } else {
             mSettingsClient?.checkLocationSettings(mLocationSettingsRequest)?.addOnSuccessListener(
-                    (context as Activity?)!!
-                ) { //  GPS is already enable, callback GPS status through listener
-                    onGpsListener?.gpsStatus(true)
-                }
+                (context as Activity?)!!
+            ) { //  GPS is already enable, callback GPS status through listener
+                onGpsListener?.gpsStatus(true)
+            }
                 ?.addOnFailureListener(
                     (context as Activity?)!!
                 ) { e ->
@@ -91,7 +80,7 @@ class GpsUtils {
                             val rae = e as ResolvableApiException
                             rae.startResolutionForResult(
                                 context as Activity?,
-                                15
+                                Constant.GPS_REQUEST_CODE_PERMISSIONS
                             )
                         } catch (sie: SendIntentException) {
                             Log.i(TAG, "PendingIntent unable to execute request.")
@@ -112,35 +101,30 @@ class GpsUtils {
         }
 
 
-
     }
 
 
     private var locationCallback: LocationCallback? = null
 
-
-//    private fun buildLocationRequest(): LocationRequest = LocationRequest.create().apply {
-//        priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-//        interval = 5000 //5 seconds
-//        fastestInterval = 5000 //5 seconds
-//        maxWaitTime = 1000 //1 seconds
-//    }
-
     fun stop() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback)
     }
 
+    /*
+    * Listen when GPS is enabled
+    * get the first location result and then stop listening for updates just for simplicity sake
+    * */
     @SuppressLint("MissingPermission")
     fun detectGPS(onGPSChanged: (Boolean) -> Unit) {
         locationCallback = object : LocationCallback() {
 
             override fun onLocationAvailability(var1: LocationAvailability?) {
-                Log.i("detectGPS","GPS enabled: ${var1?.isLocationAvailable}")
+                Log.i("detectGPS", "GPS enabled: ${var1?.isLocationAvailable}")
                 onGPSChanged(var1?.isLocationAvailable ?: false)
             }
 
             override fun onLocationResult(result: LocationResult?) {
-                Log.i("detectGPS","New location: ${result?.lastLocation}")
+                Log.i("detectGPS", "New location: ${result?.lastLocation}")
                 result?.lastLocation?.let {
                     onGpsListener.gpsLocation(result?.lastLocation)
                 }
