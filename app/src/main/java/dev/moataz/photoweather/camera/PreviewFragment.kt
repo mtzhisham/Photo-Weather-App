@@ -55,90 +55,138 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
     private fun allPermissionsGranted() = EasyPermissions.hasPermissions(requireContext(), *REQUIRED_PERMISSIONS)
 
     var createdBitmap : Bitmap? = null
+    var isGalleryPreview = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
-            it.getString("iamge")?.let {
-                Glide.with(previewIV)
-                    .load(File(it))
-                    .listener(object : RequestListener<Drawable> {
-                        override fun onResourceReady(
-                            resource: Drawable?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            dataSource: DataSource?,
-                            isFirstResource: Boolean
-                        ): Boolean {
 
-                            val builder = resource?.toBitmap()?.let { it1 -> Palette.Builder(it1) }
-                           builder?.generate { palette: Palette? ->
-                                //access palette instance here
-                               val vibrantSwatch = palette?.vibrantSwatch
+            val arg = it
 
-                               // Set the toolbar background and text colors.
-                               // Fall back to default colors if the vibrant swatch is not available.
+            it.getString("iamge")?.let{
 
-                               Log.d("color", vibrantSwatch?.rgb.toString())
-                               previewFragment.setBackgroundColor(
-                                   (vibrantSwatch?.rgb ?:
-                                   ContextCompat.getColor(requireContext(), R.color.colorPrimary)))
+                arg.getBoolean("gallery")?.apply{
+                    isGalleryPreview = this@apply
+                }
+                if (!isGalleryPreview){
+
+                    Glide.with(previewIV)
+                        .load(File(it))
+                        .listener(object : RequestListener<Drawable> {
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+
+                                val builder = resource?.toBitmap()?.let { it1 -> Palette.Builder(it1) }
+                                builder?.generate { palette: Palette? ->
+                                    //access palette instance here
+                                    val vibrantSwatch = palette?.vibrantSwatch
+
+                                    // Set the toolbar background and text colors.
+                                    // Fall back to default colors if the vibrant swatch is not available.
+
+                                    Log.d("color", vibrantSwatch?.rgb.toString())
+                                    previewFragment.setBackgroundColor(
+                                        (vibrantSwatch?.rgb ?:
+                                        ContextCompat.getColor(requireContext(), R.color.colorPrimary)))
 //                                   setTitleTextColor(vibrantSwatch?.titleTextColor ?:
 //                                   ContextCompat.getColor(context, R.color.default_title_color))
 
+                                }
+                                return false
                             }
-                            return false
-                        }
 
-                        override fun onLoadFailed(
-                            e: GlideException?,
-                            model: Any?,
-                            target: Target<Drawable>?,
-                            isFirstResource: Boolean
-                        ): Boolean {
-                            return false
-                        }
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                return false
+                            }
 
+
+                        })
+                        .fitCenter()
+                        .apply(RequestOptions().override(getScreenSize(requireContext())?.x?:100, getScreenSize(requireContext())?.y?:100))
+
+                        .into(previewIV)
+
+
+
+                    viewModel.mutableWeatherApiResponse.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+
+                        it?.let {
+
+
+                            Glide.with(iconIV)
+                                .load("http://openweathermap.org/img/w/${it.weather.first().icon}.png")
+                                .fitCenter()
+                                .into(iconIV)
+
+
+
+                            Log.d("GLIDO", "http://openweathermap.org/img/w/${it.weather.first().icon}.png")
+                            placeTv.text =  it.name
+                            discTV.text = it.weather.first().description
+                            tempTv.text = it.main.temp.toString()
+
+
+
+                        }
 
                     })
-                    .fitCenter()
-                    .apply(RequestOptions().override(getScreenSize(requireContext())?.x?:100, getScreenSize(requireContext())?.y?:100))
 
-                    .into(previewIV)
+                    save_photo_button.setOnClickListener {
 
-
-
-
-                save_photo_button.setOnClickListener {
-
-                    save_photo_button.visibility = View.GONE
+                        save_photo_button.visibility = View.GONE
 
 
 
-                    // Request camera permissions
-                    if (allPermissionsGranted()) {
+                        // Request camera permissions
+                        if (allPermissionsGranted()) {
 
-                        getBitmapFromView(previewFragment)?.let {
+                            getBitmapFromView(previewFragment)?.let {
 
 
-                            createdBitmap = it
-                            saveToDisk()
+                                createdBitmap = it
+                                saveToDisk()
 
+                            }
+
+
+                        } else {
+                            EasyPermissions.requestPermissions(
+                                this,
+                                "Requesting read permission",
+                                REQUEST_CODE_PERMISSIONS,
+                                *REQUIRED_PERMISSIONS
+                            )
                         }
 
 
-                    } else {
-                        EasyPermissions.requestPermissions(
-                            this,
-                            "Requesting read permission",
-                            REQUEST_CODE_PERMISSIONS,
-                            *REQUIRED_PERMISSIONS
-                        )
+
+                        save_photo_button.visibility = View.VISIBLE
                     }
 
 
 
-                    save_photo_button.visibility = View.VISIBLE
+
+                } else {
+
+                    save_photo_button.visibility = View.GONE
+                    bannerMCV.visibility = View.GONE
+                    Glide.with(previewIV)
+                        .load(File(it))
+                        .fitCenter()
+                        .apply(RequestOptions().override(getScreenSize(requireContext())?.x?:100, getScreenSize(requireContext())?.y?:100))
+                        .into(previewIV)
+
+
                 }
 
 
@@ -148,28 +196,7 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
         }
 
-        viewModel.mutableWeatherApiResponse.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
 
-            it?.let {
-
-
-                Glide.with(iconIV)
-                    .load("http://openweathermap.org/img/w/${it.weather.first().icon}.png")
-                    .fitCenter()
-                    .into(iconIV)
-
-
-
-                Log.d("GLIDO", "http://openweathermap.org/img/w/${it.weather.first().icon}.png")
-                placeTv.text =  it.name
-                discTV.text = it.weather.first().description
-                tempTv.text = it.main.temp.toString()
-
-
-
-            }
-
-        })
 
     }
 
@@ -208,13 +235,15 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
                 os.close()
 
 
-                var target = Intent(Intent.ACTION_VIEW);
+                var target = Intent(Intent.ACTION_SEND);
 
 
+                target.setType("image/*");
+                target.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(requireContext(), requireContext().getApplicationContext().getPackageName() + ".provider", imageFile));
 
-                target.setData(FileProvider.getUriForFile(requireContext(), requireContext().getApplicationContext().getPackageName() + ".provider", imageFile));
+//                target.setData(FileProvider.getUriForFile(requireContext(), requireContext().getApplicationContext().getPackageName() + ".provider", imageFile));
 //                target.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-                target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
                 var intent = Intent.createChooser(target, "Open File");
                 try {

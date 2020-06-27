@@ -9,19 +9,17 @@ import android.location.Location
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import org.koin.androidx.viewmodel.ext.android.viewModel
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.navigation.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import dev.moataz.photoweather.helper.CustomKrate
 import dev.moataz.photoweather.helper.GpsUtils
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 
@@ -162,7 +160,19 @@ class MainActivity : AppCompatActivity() {
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
 
-}
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        findNavController(R.id.nav_host_fragment).navigate(item.itemId)
+
+        return super.onOptionsItemSelected(item)
+        }
+    }
+
+
 
 

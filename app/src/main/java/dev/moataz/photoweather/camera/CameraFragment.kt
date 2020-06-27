@@ -79,7 +79,11 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
         }
 
         // Setup the listener for take photo button
-        camera_capture_button.setOnClickListener { takePhoto() }
+        camera_capture_button.setOnClickListener {
+
+            takePhoto()
+
+        }
 
         outputDirectory = getOutputDirectory(requireActivity(), resources)
 

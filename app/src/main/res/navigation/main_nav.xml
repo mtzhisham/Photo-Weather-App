@@ -17,10 +17,26 @@
         <action
             android:id="@+id/action_cameraFragment_to_previewFragment"
             app:destination="@id/previewFragment" />
+        <action
+            android:id="@+id/action_cameraFragment_to_photoGalleryFragment"
+            app:destination="@id/photoGalleryFragment" />
     </fragment>
     <fragment
         android:id="@+id/previewFragment"
         android:name="dev.moataz.photoweather.camera.PreviewFragment"
         android:label="preview_fragment"
-        tools:layout="@layout/preview_fragment" />
+        tools:layout="@layout/preview_fragment" >
+        <action
+            android:id="@+id/action_previewFragment_to_photoGalleryFragment"
+            app:destination="@id/photoGalleryFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/photoGalleryFragment"
+        android:name="dev.moataz.photoweather.camera.PhotoGalleryFragment"
+        android:label="photo_gallery_fragment"
+        tools:layout="@layout/photo_gallery_fragment" >
+        <action
+            android:id="@+id/action_photoGalleryFragment_to_previewFragment"
+            app:destination="@id/previewFragment" />
+    </fragment>
 </navigation>
