@@ -10,22 +10,3 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import pub.devrel.easypermissions.EasyPermissions
-
-private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-
-@SuppressLint("MissingPermission")
-suspend fun getLocation(context: Context) : Location? {
-    fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
-    var lastLocation : Location? = null
-
-    fusedLocationClient.lastLocation
-        .addOnSuccessListener { location : Location? ->
-            lastLocation = location
-            Log.d("Locationn", location.toString())
-
-        }
-
-    return lastLocation
-}

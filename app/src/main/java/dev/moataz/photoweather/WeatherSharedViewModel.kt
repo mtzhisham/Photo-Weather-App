@@ -1,5 +1,6 @@
 package dev.moataz.photoweather
 
+import android.location.Location
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,6 +17,10 @@ class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel
 
     var error  = MutableLiveData<String>()
     var mutableWeatherApiResponse = MutableLiveData<OpenWeatherApiResponse>()
+
+
+
+    var mutableCurrentLocation = MutableLiveData<Location>()
 
 
     fun getCurrentWeather(lat : Float,
@@ -37,6 +42,9 @@ class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel
         }
         return mutableWeatherApiResponse
     }
+
+
+
 }
 
 
