@@ -272,6 +272,11 @@ class CameraFragment : Fragment(R.layout.camera_fragment) {
         super.onPause()
     }
 
+    override fun onDestroy() {
+        gpsUtil.stop()
+        super.onDestroy()
+    }
+
 }
 
 

@@ -32,7 +32,7 @@ import java.io.OutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.lifecycle.Observer
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class PreviewFragment : Fragment(R.layout.preview_fragment) {
@@ -86,6 +86,19 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
             sharePhoto(file)
         }
+
+
+        viewModel.isLoading.observe(viewLifecycleOwner , Observer {
+
+
+            it?.let {
+
+                if (it)  requireActivity().mainProgressBar?.visibility = View.VISIBLE
+                else  requireActivity().mainProgressBar?.visibility = View.GONE
+            }
+        })
+
+
     }
 
 
@@ -302,5 +315,13 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
     }
 
+    override fun onStop() {
+        viewModel.isLoading.value = false
+        super.onStop()
+    }
 
+    override fun onDestroy() {
+        viewModel.isLoading.value = false
+        super.onDestroy()
+    }
 }

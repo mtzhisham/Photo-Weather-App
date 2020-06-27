@@ -18,6 +18,7 @@ class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel
     var error = MutableLiveData<String>()
     var mutableWeatherApiResponse = MutableLiveData<OpenWeatherApiResponse>()
     var mutableCurrentLocation = MutableLiveData<Location>()
+    var isLoading = MutableLiveData<Boolean>()
 
 
     fun getCurrentWeather(
@@ -32,10 +33,13 @@ class WeatherSharedViewModel(private val iWeatherRepo: IWeatherRepo) : ViewModel
                     is DataResult.Success -> {
                         mutableWeatherApiResponse.value = result.content
                         error.value = null
+                        isLoading.value = true
+                        isLoading.value = false
                     }
                     is DataResult.Error -> {
                         mutableWeatherApiResponse.value = null
                         error.value = result.exception.message
+                        isLoading.value = false
                     }
                 }
             }

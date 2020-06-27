@@ -103,7 +103,12 @@ class GPSUtil {
     private var locationCallback: LocationCallback? = null
 
     fun stop() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+        locationCallback?.let {
+            fusedLocationProviderClient?.let {
+                fusedLocationProviderClient.removeLocationUpdates(locationCallback)
+            }
+        }
+
     }
 
     /*
