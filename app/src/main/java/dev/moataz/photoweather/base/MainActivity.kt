@@ -1,42 +1,38 @@
-package dev.moataz.photoweather
+package dev.moataz.photoweather.base
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import dev.moataz.photoweather.helper.GpsUtils
+import dev.moataz.photoweather.R
+import dev.moataz.photoweather.helper.Constant.GPS_REQUEST_CODE_PERMISSIONS
+import dev.moataz.photoweather.helper.Constant.LOCATION_REQUEST_CODE_PERMISSIONS
+import dev.moataz.photoweather.helper.Constant.LOCATION_REQUIRED_PERMISSIONS
+import dev.moataz.photoweather.helper.GPSUtil
+import dev.moataz.photoweather.helper.isNetworkAvailable
+import dev.moataz.photoweather.viewmodel.WeatherSharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 
-
-private const val REQUEST_CODE_PERMISSIONS = 12
-private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.ACCESS_COARSE_LOCATION
-    )
 class MainActivity : AppCompatActivity() {
 
 
-    private var isGPS  = false
+    private var isGPS = false
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val weatherSharedViewModel: WeatherSharedViewModel by viewModel()
 
-    lateinit var gpsUtils: GpsUtils
+    lateinit var GPSUtil: GPSUtil
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,94 +41,74 @@ class MainActivity : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this@MainActivity)
 
 
-
-        // Request camera permissions
+        // Request gps permissions
         if (allPermissionsGranted()) {
 
             getLocation()
         } else {
             EasyPermissions.requestPermissions(
                 this,
-                "Requesting read permission",
-                REQUEST_CODE_PERMISSIONS,
-                *REQUIRED_PERMISSIONS
+                resources.getString(R.string.location_request_rational),
+                LOCATION_REQUEST_CODE_PERMISSIONS,
+                *LOCATION_REQUIRED_PERMISSIONS
             )
         }
 
 
-
-
+        //pre-prepare weather details for next screen
         weatherSharedViewModel.mutableCurrentLocation.observe(this, Observer {
 
+            weatherSharedViewModel.error.observe(this, Observer {
+                it?.let {
+
+                    Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+
+                    weatherSharedViewModel.error.value = null
+                }
 
 
-                weatherSharedViewModel.error.observe(this, Observer {
-                    it?.let {
+            })
 
-                        Toast.makeText(this, it,  Toast.LENGTH_SHORT).show()
-
-                        weatherSharedViewModel.error.value = null
-                    }
-
-
-                })
-
-//            Log.d("Locationn", isGPS.toString() + it.toString())
 
             it?.let {
-                weatherSharedViewModel.getCurrentWeather(it.latitude.toFloat(),it.longitude.toFloat()).observe(this, Observer {
+                if (isNetworkAvailable(this)) {
+                    weatherSharedViewModel.getCurrentWeather(
+                        it.latitude.toFloat(),
+                        it.longitude.toFloat()
+                    ).observe(this, Observer {
 
-                    it?.let {
+                    })
+                } else {
 
-                        Log.d("weatherSharedViewModel", it.toString())
+                    Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show()
 
-                    }
-
-                })
-
+                }
             }
 
-
-
-
-
-    })
-
-
-
-
-
-
-
+        })
 
     }
 
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        return super.onCreateView(name, context, attrs)
-    }
+    private fun allPermissionsGranted() =
+        EasyPermissions.hasPermissions(this@MainActivity, *LOCATION_REQUIRED_PERMISSIONS)
 
 
-    private fun allPermissionsGranted() = EasyPermissions.hasPermissions(this@MainActivity, *REQUIRED_PERMISSIONS)
-
-
+    //permission is handled but lint don;t like how i did it
     @SuppressLint("MissingPermission")
-    @AfterPermissionGranted(REQUEST_CODE_PERMISSIONS)
+    @AfterPermissionGranted(LOCATION_REQUEST_CODE_PERMISSIONS)
     fun getLocation() {
-
-        gpsUtils = GpsUtils(this, object : GpsUtils.OnGpsListener {
+        GPSUtil = GPSUtil(this, object : GPSUtil.OnGpsListener {
             override fun gpsStatus(isGPSEnable: Boolean) {
                 // turn on GPS
                 isGPS = isGPSEnable
 
-                Log.d("Locationn", isGPS.toString() + " 15")
-
             }
+
             override fun gpsLocation(location: Location) {
+                //update the location live data to trigger an API call with the latest location
                 weatherSharedViewModel.mutableCurrentLocation.value = location
-                Log.d("Locationn", isGPS.toString() + " 2" + location)
             }
         }, fusedLocationClient)
-
 
     }
 
@@ -143,7 +119,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == 15) {
+            if (requestCode == GPS_REQUEST_CODE_PERMISSIONS) {
                 isGPS = true // flag maintain before get location
 
             }
@@ -168,11 +144,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         findNavController(R.id.nav_host_fragment).navigate(item.itemId)
-
         return super.onOptionsItemSelected(item)
-        }
     }
-
-
-
-
+}
