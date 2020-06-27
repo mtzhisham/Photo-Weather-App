@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (isNetworkAvailable(this)) {
 
-                    if (it == null) {
+                    if (it != null) {
                         weatherSharedViewModel.getCurrentWeather(
                             it.latitude.toFloat(),
                             it.longitude.toFloat()

@@ -61,85 +61,56 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
             val arg = it
 
-            it.getString(Constant.GALLERY_BUNDLE_KEY)?.let {
+            it.getString(Constant.IMAGE_BUNDLE_KEY)?.let {
 
                 file = File(it)
-                arg.getBoolean(Constant.GALLERY_BUNDLE_KEY)?.apply {
-                    isGalleryPreview = this@apply
+                arg.getBoolean(Constant.GALLERY_BUNDLE_KEY)?.let {
+                    isGalleryPreview = it
+                    Log.d("GALLERY_BUNDLE_KEY", it.toString())
                 }
                 if (!isGalleryPreview) {
+                    setUpPhotoAfterCapture()
+                } else {
+                    setUpPhotoFeomGallery()
+                }
 
-                    Glide.with(previewIV)
-                        .load(file)
-                        .listener(object : RequestListener<Drawable> {
-                            override fun onResourceReady(
-                                resource: Drawable?,
-                                model: Any?,
-                                target: Target<Drawable>?,
-                                dataSource: DataSource?,
-                                isFirstResource: Boolean
-                            ): Boolean {
+            }
 
-                                val builder =
-                                    resource?.toBitmap()?.let { it1 -> Palette.Builder(it1) }
-                                builder?.generate { palette: Palette? ->
-                                    val vibrantSwatch = palette?.vibrantSwatch
-                                    previewFragment.setBackgroundColor(
-                                        (vibrantSwatch?.rgb ?: ContextCompat.getColor(
-                                            requireContext(),
-                                            R.color.colorPrimary
-                                        ))
-                                    )
+        }
 
 
-                                }
-                                return false
-                            }
+        sharePhotoFab.setOnClickListener {
 
-                            override fun onLoadFailed(
-                                e: GlideException?,
-                                model: Any?,
-                                target: Target<Drawable>?,
-                                isFirstResource: Boolean
-                            ): Boolean {
-                                return false
-                            }
+            sharePhoto(file)
+        }
+    }
 
 
-                        })
-                        .fitCenter()
-                        .apply(
-                            RequestOptions().override(
-                                getScreenSize(requireContext())?.x ?: 100,
-                                getScreenSize(requireContext())?.y ?: 100
-                            )
+
+    private fun setUpPhotoAfterCapture(){
+
+
+        Glide.with(previewIV)
+            .load(file)
+            .listener(object : RequestListener<Drawable> {
+                override fun onResourceReady(
+                    resource: Drawable?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    dataSource: DataSource?,
+                    isFirstResource: Boolean
+                ): Boolean {
+
+                    val builder =
+                        resource?.toBitmap()?.let { it1 -> Palette.Builder(it1) }
+                    builder?.generate { palette: Palette? ->
+                        val vibrantSwatch = palette?.vibrantSwatch
+                        previewFragment.setBackgroundColor(
+                            (vibrantSwatch?.rgb ?: ContextCompat.getColor(
+                                requireContext(),
+                                R.color.colorPrimary
+                            ))
                         )
-
-                        .into(previewIV)
-
-
-
-                    viewModel.mutableWeatherApiResponse.observe(
-                        viewLifecycleOwner,
-                        androidx.lifecycle.Observer {
-
-                            it?.let {
-
-
-                                Glide.with(iconIV)
-                                    .load(getWeatherIconUrl(it.weather.first().icon))
-                                    .fitCenter()
-                                    .into(iconIV)
-
-                                placeTv.text = it.name
-                                discTV.text = it.weather.first().description
-                                tempTv.text = it.main.temp.toString()
-
-                            }
-
-                        })
-
-                    sharePhotoFab.setOnClickListener {
 
                         sharePhotoFab.visibility = View.GONE
 
@@ -153,7 +124,7 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
                         } else {
                             EasyPermissions.requestPermissions(
-                                this,
+                                this@PreviewFragment,
                                 resources.getString(R.string.storage_request_rational),
                                 Constant.STORAGE_REQUEST_CODE_PERMISSIONS,
                                 *Constant.STORAGE_REQUIRED_PERMISSIONS
@@ -161,29 +132,76 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
                         }
 
                         sharePhotoFab.visibility = View.VISIBLE
+
                     }
-
-                } else {
-
-                    bannerMCV.visibility = View.GONE
-                    Glide.with(previewIV)
-                        .load(file)
-                        .fitCenter()
-                        .apply(
-                            RequestOptions().override(
-                                getScreenSize(requireContext())?.x ?: 100,
-                                getScreenSize(requireContext())?.y ?: 100
-                            )
-                        )
-                        .into(previewIV)
+                    return false
                 }
 
-            }
+                override fun onLoadFailed(
+                    e: GlideException?,
+                    model: Any?,
+                    target: Target<Drawable>?,
+                    isFirstResource: Boolean
+                ): Boolean {
+                    return false
+                }
 
-        }
+
+            })
+            .fitCenter()
+            .apply(
+                RequestOptions().override(
+                    getScreenSize(requireContext())?.x ?: 100,
+                    getScreenSize(requireContext())?.y ?: 100
+                )
+            )
+
+            .into(previewIV)
+
+
+
+        viewModel.mutableWeatherApiResponse.observe(
+            viewLifecycleOwner,
+            androidx.lifecycle.Observer {
+
+                it?.let {
+
+
+                    Glide.with(iconIV)
+                        .load(getWeatherIconUrl(it.weather.first().icon))
+                        .fitCenter()
+                        .into(iconIV)
+
+                    placeTv.text = it.name
+                    discTV.text = it.weather.first().description
+                    tempTv.text = it.main.temp.toString()
+
+                }
+
+            })
+
+
+
+
 
     }
 
+
+    private fun setUpPhotoFeomGallery(){
+
+        bannerMCV.visibility = View.GONE
+        Glide.with(previewIV)
+            .load(file)
+            .fitCenter()
+            .apply(
+                RequestOptions().override(
+                    getScreenSize(requireContext())?.x ?: 100,
+                    getScreenSize(requireContext())?.y ?: 100
+                )
+            )
+            .into(previewIV)
+
+    }
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -194,12 +212,35 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
     }
 
 
+    private fun sharePhoto(imageFile: File){
+
+        var target = Intent(Intent.ACTION_SEND);
+        target.setType("image/*");
+        target.putExtra(
+            Intent.EXTRA_STREAM,
+            FileProvider.getUriForFile(
+                requireContext(),
+                requireContext().getApplicationContext().getPackageName() + ".provider",
+                imageFile
+            )
+        );
+
+        var intent = Intent.createChooser(target, "Open File");
+        try {
+            startActivity(intent);
+        } catch (e: Exception) {
+
+            e.printStackTrace()
+        }
+
+
+    }
+
     @AfterPermissionGranted(Constant.STORAGE_REQUEST_CODE_PERMISSIONS)
     private fun saveToDisk() {
         createdBitmap?.let {
             var imageFile: File
             if (isGalleryPreview && file != null) {
-                imageFile = file
 
             } else {
 
@@ -221,25 +262,6 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
                 }
 
             }
-            var target = Intent(Intent.ACTION_SEND);
-            target.setType("image/*");
-            target.putExtra(
-                Intent.EXTRA_STREAM,
-                FileProvider.getUriForFile(
-                    requireContext(),
-                    requireContext().getApplicationContext().getPackageName() + ".provider",
-                    imageFile
-                )
-            );
-
-            var intent = Intent.createChooser(target, "Open File");
-            try {
-                startActivity(intent);
-            } catch (e: Exception) {
-
-                e.printStackTrace()
-            }
-
         }
 
     }

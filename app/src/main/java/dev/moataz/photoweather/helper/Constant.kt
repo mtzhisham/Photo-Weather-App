@@ -12,7 +12,7 @@ object Constant {
 
 
     const val IMAGE_BUNDLE_KEY = "IMAGE_BUNDLE_KEY"
-    const val GALLERY_BUNDLE_KEY = "IMAGE_BUNDLE_KEY"
+    const val GALLERY_BUNDLE_KEY = "GALLERY_BUNDLE_KEY"
 
 
     const val STORAGE_REQUEST_CODE_PERMISSIONS = 11
