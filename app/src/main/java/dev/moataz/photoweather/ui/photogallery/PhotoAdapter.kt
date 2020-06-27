@@ -1,4 +1,4 @@
-package dev.moataz.photoweather.camera
+package dev.moataz.photoweather.ui.photogallery
 
 import android.view.LayoutInflater
 import android.view.View
@@ -12,12 +12,15 @@ import kotlinx.android.synthetic.main.list_item_photo.view.*
 import java.io.File
 
 
-class PhotoAdapter(private val iOnItemSelectedListener: IOnItemSelectedListener) : ListAdapter<File, DoctorViewHolder>(DiffCallback) {
-
+class PhotoAdapter(private val iOnItemSelectedListener: IOnItemSelectedListener) :
+    ListAdapter<File, DoctorViewHolder>(
+        DiffCallback
+    ) {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DoctorViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.list_item_photo, parent, false)
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.list_item_photo, parent, false)
 
         val layoutParams: ViewGroup.LayoutParams = view.getLayoutParams()
         layoutParams.width = (parent.width * 0.35).toInt()
