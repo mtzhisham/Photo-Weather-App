@@ -17,6 +17,7 @@ import dev.moataz.photoweather.R
 import dev.moataz.photoweather.helper.Constant.GPS_REQUEST_CODE_PERMISSIONS
 import dev.moataz.photoweather.helper.Constant.LOCATION_REQUEST_CODE_PERMISSIONS
 import dev.moataz.photoweather.helper.Constant.LOCATION_REQUIRED_PERMISSIONS
+import dev.moataz.photoweather.helper.CustomKrate
 import dev.moataz.photoweather.helper.GPSUtil
 import dev.moataz.photoweather.helper.isNetworkAvailable
 import dev.moataz.photoweather.viewmodel.WeatherSharedViewModel
@@ -70,20 +71,34 @@ class MainActivity : AppCompatActivity() {
             })
 
 
-            it?.let {
-                if (isNetworkAvailable(this)) {
-                    weatherSharedViewModel.getCurrentWeather(
-                        it.latitude.toFloat(),
-                        it.longitude.toFloat()
-                    ).observe(this, Observer {
 
-                    })
+                if (isNetworkAvailable(this)) {
+
+                    if (it == null) {
+                        weatherSharedViewModel.getCurrentWeather(
+                            it.latitude.toFloat(),
+                            it.longitude.toFloat()
+                        ).observe(this, Observer {
+
+                        })
+                    } else{
+                        val krate = CustomKrate(this)
+
+                        weatherSharedViewModel.getCurrentWeather(
+                            krate.lat,
+                            krate.lon
+                        ).observe(this, Observer {
+
+                        })
+
+                    }
+
                 } else {
 
                     Toast.makeText(this, "No Internet Connection!", Toast.LENGTH_SHORT).show()
 
                 }
-            }
+
 
         })
 
@@ -107,6 +122,9 @@ class MainActivity : AppCompatActivity() {
             override fun gpsLocation(location: Location) {
                 //update the location live data to trigger an API call with the latest location
                 weatherSharedViewModel.mutableCurrentLocation.value = location
+                val krate = CustomKrate(this@MainActivity)
+                krate.lon = location?.longitude.toFloat()?:0.0f
+                krate.lat = location?.latitude.toFloat()?:0.0f
             }
         }, fusedLocationClient)
 
