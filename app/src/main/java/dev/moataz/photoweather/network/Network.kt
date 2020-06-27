@@ -42,9 +42,11 @@ object Network {
 
             val appid = BuildConfig.APP_ID
 
+
             var request = chain.request()
             val url: HttpUrl = request.url.newBuilder()
                 .addQueryParameter("appid", appid)
+                .addQueryParameter("units", "metric")
                 .build()
             request = request.newBuilder().url(url).build()
 

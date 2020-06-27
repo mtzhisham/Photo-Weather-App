@@ -4,18 +4,28 @@ import android.Manifest
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.palette.graphics.Palette
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import dev.moataz.photoweather.R
+import dev.moataz.photoweather.WeatherSharedViewModel
 import dev.moataz.photoweather.helper.getOutputDirectory
 import dev.moataz.photoweather.helper.getScreenSize
 import kotlinx.android.synthetic.main.preview_fragment.*
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.File
@@ -35,7 +45,7 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
     }
 
-    private lateinit var viewModel: PreviewViewModel
+    private  val viewModel: WeatherSharedViewModel by sharedViewModel()
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -50,11 +60,50 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
             it.getString("iamge")?.let {
-                Glide
-                    .with(requireContext())
+                Glide.with(previewIV)
                     .load(File(it))
+                    .listener(object : RequestListener<Drawable> {
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+
+                            val builder = resource?.toBitmap()?.let { it1 -> Palette.Builder(it1) }
+                           builder?.generate { palette: Palette? ->
+                                //access palette instance here
+                               val vibrantSwatch = palette?.vibrantSwatch
+
+                               // Set the toolbar background and text colors.
+                               // Fall back to default colors if the vibrant swatch is not available.
+
+                               Log.d("color", vibrantSwatch?.rgb.toString())
+                               previewFragment.setBackgroundColor(
+                                   (vibrantSwatch?.rgb ?:
+                                   ContextCompat.getColor(requireContext(), R.color.colorPrimary)))
+//                                   setTitleTextColor(vibrantSwatch?.titleTextColor ?:
+//                                   ContextCompat.getColor(context, R.color.default_title_color))
+
+                            }
+                            return false
+                        }
+
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            return false
+                        }
+
+
+                    })
                     .fitCenter()
                     .apply(RequestOptions().override(getScreenSize(requireContext())?.x?:100, getScreenSize(requireContext())?.y?:100))
+
                     .into(previewIV)
 
 
@@ -98,6 +147,29 @@ class PreviewFragment : Fragment(R.layout.preview_fragment) {
 
 
         }
+
+        viewModel.mutableWeatherApiResponse.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+
+            it?.let {
+
+
+                Glide.with(iconIV)
+                    .load("http://openweathermap.org/img/w/${it.weather.first().icon}.png")
+                    .fitCenter()
+                    .into(iconIV)
+
+
+
+                Log.d("GLIDO", "http://openweathermap.org/img/w/${it.weather.first().icon}.png")
+                placeTv.text =  it.name
+                discTV.text = it.weather.first().description
+                tempTv.text = it.main.temp.toString()
+
+
+
+            }
+
+        })
 
     }
 

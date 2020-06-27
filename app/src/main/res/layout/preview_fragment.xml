@@ -9,6 +9,84 @@
 
     >
 
+    <androidx.constraintlayout.widget.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent=".2"
+        android:id="@+id/bannerGuideline"
+        />
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/bannerGuideline"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="8dp"
+        app:layout_constraintWidth_percent=".9"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/grdient_background_drawable"
+
+            >
+
+            <ImageView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/placeTv"
+                android:id="@+id/iconIV"
+                android:src="@mipmap/ic_launcher"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                style="@style/TextViewBig"
+                android:id="@+id/placeTv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/iconIV"
+                app:layout_constraintBottom_toTopOf="@id/discTV"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                style="@style/TextViewSmall"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/placeTv"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/tempTv"
+                android:id="@+id/discTV"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                style="@style/TextViewSmall"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/placeTv"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/discTV"
+                android:id="@+id/tempTv"
+                />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,16 +94,20 @@
         android:id="@+id/previewIV" />
 
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/save_photo_button"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_marginBottom="50dp"
-        android:scaleType="fitCenter"
-        android:text="Save Photo"
+
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:elevation="2dp" />
+        android:elevation="2dp"
+
+        android:src="@drawable/ic_share"
+        app:fabCustomSize="100dp"
+        android:scaleType="center"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
